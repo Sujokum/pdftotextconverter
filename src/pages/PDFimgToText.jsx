@@ -3,11 +3,12 @@ import React , {useState } from 'react'
 
  const PDFimgToText = () => {
   const [ocr, setOcr] = useState("");
-
+const [loading , setLoading] =  useState(false)
 
   const handleImage = async (e)=>{
       const file = e.target.files[0];
       if(!file)return;
+      setLoading(true)
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload =  (e)=>{
@@ -21,8 +22,8 @@ import React , {useState } from 'react'
             name : file.name
           })
         }).then(res => res.text()).then(data => {
-        console.log(data)
-          setOcr(data)  
+          setOcr(data)
+          setLoading(false)  
         })
       
       }
@@ -30,6 +31,33 @@ import React , {useState } from 'react'
 
   }
 
+
+  const downloadTxt = ()=>{
+    const element = document.createElement("a");
+  const file = new Blob([ocr], { type: 'text/plain' });
+  element.href = URL.createObjectURL(file);
+  element.download = "myTextFile.txt";
+  document.body.appendChild(element);
+  element.click();
+  }
+
+const downloadCSV = ()=>{
+const element = document.createElement("a");
+const file = new Blob([ocr], { type: 'text/plain' });
+element.href = URL.createObjectURL(file);
+element.download = "myCSVfile.csv";
+document.body.appendChild(element);
+element.click();
+}
+
+
+
+
+  if(loading){
+    return(
+      <div className='w-full h-screen flex justify-center items-center' > <div class="loader"></div> </div>
+    )
+  }
 
 
 
@@ -40,6 +68,16 @@ import React , {useState } from 'react'
         <h1 className='text-4xl font-semibold  text-red-500'>Image / PDF TO TEXT Extraction</h1>
         <div className='flex gap-3' >
           <input className='bg-red-500 px-4 py-2 rounded-2xl shadow-md text-white' onChange={(e)=>handleImage(e)}  type="file"   />
+          {
+        ocr && (
+            <>
+<button className='bg-green-500 px-4 py-2 rounded-2xl shadow-md text-white' onClick={downloadTxt} >Download in .txt file</button>     
+<button className='bg-green-500 px-4 py-2 rounded-2xl shadow-md text-white' onClick={downloadCSV} >Download in .csv file</button>     
+            
+            </>
+
+        )
+      }
         </div>
           <div className='px-[80px] '>
             <h2 className='text-2xl text-red-500 font-semibold'>Extracted Text:</h2>
